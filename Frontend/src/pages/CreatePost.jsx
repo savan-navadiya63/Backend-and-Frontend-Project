@@ -3,37 +3,54 @@ import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 
 const CreatePost = () => {
-
-
-const [image, setImage] = useState(null);
-const [caption, setCaption] = useState("");
-
-
   const navigate = useNavigate();
+  const [image, setImage] = useState(null);
+  const [caption, setCaption] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const formdata = new FormData(); // form data ko create krna
+    if (!image) {
+      alert("Please select an image");
+      return;
+    }
 
-    formdata.append("image", image);
-    formdata.append("caption", caption);
+    if (!caption.trim()) {
+      alert("Please enter a caption");
+      return;
+    }
 
-  try {
-    const res = await axios.post(
-      "https://my-backend-app.onrender.com/create-post",
-      formdata,
-    );
+    const formData = new FormData(); // form data ko create krna
+    formData.append("image", image); // image ko formdata me add krna
+    formData.append("caption", caption); // caption ko formdata me add krna
 
-    alert(res.data.message);
-    navigate("/Feed");
-
-  } catch (err) {
-    console.log(err);
-    alert("Error creating post");
-  }
+    setLoading(true);
+    const backendURL =
+      import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
+    await axios
+      .post(`${backendURL}/create-post`, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      }) // backend ko request bhejna
+      .then((res) => {
+        alert(res.data.message); // success message ko alert me dikhana
+        setImage(null);
+        setCaption("");
+        navigate("/Feed"); // post create hone ke baad feed page par navigate krna
+      })
+      .catch((err) => {
+        console.log(err);
+        alert(
+          "Error creating post: " +
+            (err.response?.data?.message || err.message),
+        ); // error message ko alert me dikhana
+      })
+      .finally(() => {
+        setLoading(false);
+      });
   };
-
   return (
     <section className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50 py-6 sm:py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-2xl mx-auto">
@@ -52,9 +69,12 @@ const [caption, setCaption] = useState("");
                   type="file"
                   name="image"
                   accept="image/*"
-                  className="w-full"
                   onChange={(e) => setImage(e.target.files[0])}
+                  className="w-full"
                 />
+                {image && (
+                  <p className="text-sm text-gray-600 mt-2">{image.name}</p>
+                )}
               </div>
             </div>
             <div>
@@ -65,16 +85,18 @@ const [caption, setCaption] = useState("");
                 type="text"
                 name="caption"
                 placeholder="Enter caption"
+                value={caption}
+                onChange={(e) => setCaption(e.target.value)}
                 required
                 className="w-full px-4 py-3 sm:py-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none text-sm sm:text-base placeholder-gray-400 transition"
-                onChange={(e) => setCaption(e.target.value)}
               />
             </div>
             <button
               type="submit"
-              className="w-full px-6 py-3 sm:py-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition duration-200 shadow-md hover:shadow-lg text-sm sm:text-base"
+              disabled={loading}
+              className="w-full px-6 py-3 sm:py-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition duration-200 shadow-md hover:shadow-lg text-sm sm:text-base disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Create Post
+              {loading ? "Creating..." : "Create Post"}
             </button>
           </form>
         </div>

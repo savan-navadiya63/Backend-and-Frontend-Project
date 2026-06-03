@@ -8,25 +8,27 @@ const Feed = () => {
 
   useEffect(() => {
     const fetchPosts = async () => {
+      
       try {
-        const res = await axios.get("http://localhost:5000/posts"); // backend se posts ko fetch krna
+        const backendURL =import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
+        const res = await axios.get(`${backendURL}/posts`); // backend se posts ko fetch krna
         setPost(res.data.posts); // posts ko state me set krna
       } catch (error) {
         console.log(error);
       }
     };
-
     fetchPosts(); // component ke mount hote hi posts ko fetch krna
   }, []);
 
-
-
   //Remove button par click  work
   const handleDeletePost = async (postId) => {
+
     if (window.confirm("Are you sure you want to delete this post?")) {
       setDeletingId(postId);
+
       try {
-        await axios.delete(`http://localhost:5000/posts/${postId}`);
+        const backendURL =import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
+        await axios.delete(`${backendURL}/posts/${postId}`);
         setPost(posts.filter((post) => post._id !== postId));
       } catch (error) {
         console.log(error);

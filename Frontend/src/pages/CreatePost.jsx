@@ -1,24 +1,37 @@
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { useState } from "react";
 
 const CreatePost = () => {
+
+
+const [image, setImage] = useState(null);
+const [caption, setCaption] = useState("");
+
+
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const formdata = new FormData(e.target); // form data ko create krna
+    const formdata = new FormData(); // form data ko create krna
 
-   await axios
-     .post("https://YOUR-BACKEND-URL.onrender.com/create-post", formdata) // backend ko request bhejna
-     .then((res) => {
-       alert(res.data.message); // success message ko alert me dikhana
-       navigate("/Feed"); // post create hone ke baad feed page par navigate krna
-     })
-     .catch((err) => {
-       console.log(err);
-       alert("Error creating post"); // error message ko alert me dikhana
-     });
+    formdata.append("image", image);
+    formdata.append("caption", caption);
+
+  try {
+    const res = await axios.post(
+      "https://my-backend-app.onrender.com/create-post",
+      formdata,
+    );
+
+    alert(res.data.message);
+    navigate("/Feed");
+
+  } catch (err) {
+    console.log(err);
+    alert("Error creating post");
+  }
   };
 
   return (
@@ -40,6 +53,7 @@ const CreatePost = () => {
                   name="image"
                   accept="image/*"
                   className="w-full"
+                  onChange={(e) => setImage(e.target.files[0])}
                 />
               </div>
             </div>
@@ -53,6 +67,7 @@ const CreatePost = () => {
                 placeholder="Enter caption"
                 required
                 className="w-full px-4 py-3 sm:py-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none text-sm sm:text-base placeholder-gray-400 transition"
+                onChange={(e) => setCaption(e.target.value)}
               />
             </div>
             <button

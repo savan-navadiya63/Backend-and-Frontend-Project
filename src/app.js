@@ -10,7 +10,9 @@ const connectDB = require('./db/db');
 connectDB(); // Connect to the database
 
 const app = express();  
-app.use(cors());  // CORS middleware ko use krna  
+app.use(cors({
+  origin:"*"
+}));  // CORS middleware ko use krna  
 app.use(express.json());
 
 const upload = multer({storage: multer.memoryStorage()} );  // multer ko memory storage ke sath configure krna

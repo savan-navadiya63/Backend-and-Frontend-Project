@@ -9,16 +9,16 @@ const CreatePost = () => {
 
     const formdata = new FormData(e.target); // form data ko create krna
 
-    await axios
-      .post("http://localhost:5000/create-post", formdata) // backend ko request bhejna
-      .then((res) => {
-        alert(res.data.message); // success message ko alert me dikhana
-        navigate("/Feed"); // post create hone ke baad feed page par navigate krna
-      })
-      .catch((err) => {
-        console.log(err);
-        alert("Error creating post"); // error message ko alert me dikhana
-      });
+   await axios
+     .post("https://YOUR-BACKEND-URL.onrender.com/create-post", formdata) // backend ko request bhejna
+     .then((res) => {
+       alert(res.data.message); // success message ko alert me dikhana
+       navigate("/Feed"); // post create hone ke baad feed page par navigate krna
+     })
+     .catch((err) => {
+       console.log(err);
+       alert("Error creating post"); // error message ko alert me dikhana
+     });
   };
 
   return (
